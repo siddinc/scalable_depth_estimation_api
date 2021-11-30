@@ -13,8 +13,11 @@ from flask_cors import CORS
 
 app = flask.Flask(__name__)
 CORS(app)
-db = redis.StrictRedis(
-    host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB
+db0 = redis.StrictRedis(
+    host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB0
+)
+db1 = redis.StrictRedis(
+    host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB1
 )
 
 
@@ -26,7 +29,6 @@ def homepage():
 @app.route("/predict", methods=["POST"])
 def predict():
     data = {"success": False}
-    print(data)
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
             image = flask.request.files["image"].read()
@@ -38,14 +40,14 @@ def predict():
             k = str(uuid.uuid4())
             image = utils.base64_encode_image(image)
             d = {"id": k, "image": image}
-            db.rpush(constants.IMAGE_QUEUE, json.dumps(d))
+            db0.rpush(constants.IMAGE_QUEUE, json.dumps(d))
 
             while True:
-                output = db.get(k)
+                output = db1.get(k)
                 if output is not None:
                     output = output.decode("utf-8")
                     data["predictions"] = json.loads(output)
-                    db.delete(k)
+                    db1.delete(k)
                     break
                 time.sleep(constants.CLIENT_SLEEP)
             data["success"] = True
