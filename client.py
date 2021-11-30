@@ -46,7 +46,7 @@ while True:
             constants.IMAGE_DTYPE,
             (constants.IMAGE_HEIGHT, constants.IMAGE_WIDTH),
         )
-        img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_AREA)
+        # img = cv2.resize(img, (256, 256), interpolation=cv2.INTER_AREA)
         cv2.imshow("depth maps", img)
     # the 'q' button is set as the
     # quitting button you may use any
