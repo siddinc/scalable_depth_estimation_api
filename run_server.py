@@ -1,8 +1,9 @@
 from PIL import Image
 import constants
-import utils
+from utils import prepare_image, base64_encode_image
 import numpy as np
 import flask
+from flask_cors import CORS, cross_origin
 import redis
 import uuid
 import time
@@ -11,6 +12,8 @@ import io
 
 
 app = flask.Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
+app.config["CORS_HEADERS"] = "Content-Type"
 db = redis.StrictRedis(
     host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB
 )
@@ -22,6 +25,7 @@ def homepage():
 
 
 @app.route("/predict", methods=["POST"])
+@cross_origin()
 def predict():
     data = {"success": False}
     print(data)
@@ -29,12 +33,12 @@ def predict():
         if flask.request.files.get("image"):
             image = flask.request.files["image"].read()
             image = Image.open(io.BytesIO(image))
-            image = utils.prepare_image(
+            image = prepare_image(
                 image, (constants.IMAGE_WIDTH, constants.IMAGE_HEIGHT)
             )
             image = image.copy(order="C")
             k = str(uuid.uuid4())
-            image = utils.base64_encode_image(image)
+            image = base64_encode_image(image)
             d = {"id": k, "image": image}
             db.rpush(constants.IMAGE_QUEUE, json.dumps(d))
 
