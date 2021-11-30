@@ -1,6 +1,3 @@
-from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.applications.resnet50 import decode_predictions
-from threading import Thread
 from PIL import Image
 import constants
 import utils
