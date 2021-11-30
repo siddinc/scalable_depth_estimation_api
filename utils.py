@@ -24,7 +24,8 @@ def prepare_image(image, target):
     image = image.resize(target)
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
-    image = preprocess_input(image)
+    image = image.astype("float32")
+    image = (image - image.min()) / (image.max() - image.min())
     return image
 
 
