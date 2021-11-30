@@ -1,13 +1,12 @@
-# from tensorflow.keras.applications import ResNet50
-from tensorflow.keras.applications.resnet50 import decode_predictions
+from utils import (
+    load_model,
+    base64_encode_image, base64_decode_image,
+)
 import numpy as np
 import constants
-import utils
 import redis
 import time
 import json
-from utils import load_model, base64_encode_image
-import matplotlib.pyplot as plt
 
 
 db0 = redis.StrictRedis(
@@ -31,15 +30,16 @@ def classify_process():
 
         for q in queue:
             q = json.loads(q.decode("utf-8"))
-            image = utils.base64_decode_image(q["image"],
-                                              constants.IMAGE_DTYPE,
-                                              (1, constants.IMAGE_HEIGHT, constants.IMAGE_WIDTH,
-                                               constants.IMAGE_CHANS))
+            image = base64_decode_image(q["image"],
+                                        constants.IMAGE_DTYPE,
+                                        (1, constants.IMAGE_HEIGHT, constants.IMAGE_WIDTH,
+                                         constants.IMAGE_CHANS))
             if batch is None:
                 batch = image
             else:
                 batch = np.vstack([batch, image])
             imageIDs.append(q["id"])
+
         if len(imageIDs) > 0:
             print("* Batch size: {}".format(batch.shape))
             preds = model.predict(batch)

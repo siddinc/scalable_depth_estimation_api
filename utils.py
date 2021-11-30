@@ -1,5 +1,4 @@
 from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.models import model_from_json
 import base64
 import sys
