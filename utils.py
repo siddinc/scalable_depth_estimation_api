@@ -1,9 +1,9 @@
 from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.applications.resnet50 import preprocess_input
 from tensorflow.keras.models import model_from_json
 import base64
 import sys
 import numpy as np
+import constants
 
 
 def base64_encode_image(a):
@@ -21,7 +21,19 @@ def base64_decode_image(a, dtype, shape):
 def prepare_image(image, target):
     if image.mode != "RGB":
         image = image.convert("RGB")
-    image = image.resize(target)
+    og_w, og_h = image.size
+    ratio = og_w / og_h
+    new_w = int(ratio * target[1])
+    image = image.resize((new_w, target[1]))
+    center = new_w // 2
+    image = image.crop(
+        (
+            center - constants.CROP_LR,
+            constants.CROP_T,
+            center + constants.CROP_LR,
+            constants.CROP_B,
+        )
+    )
     image = img_to_array(image)
     image = np.expand_dims(image, axis=0)
     image = image.astype("float32")
