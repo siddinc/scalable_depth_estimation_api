@@ -10,8 +10,12 @@ from utils import load_model, base64_encode_image
 import matplotlib.pyplot as plt
 
 
-db = redis.StrictRedis(host=constants.REDIS_HOST,
-                       port=constants.REDIS_PORT, db=constants.REDIS_DB)
+db0 = redis.StrictRedis(
+    host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB0
+)
+db1 = redis.StrictRedis(
+    host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB1
+)
 
 
 def classify_process():
@@ -20,8 +24,8 @@ def classify_process():
     print("* Model loaded")
 
     while True:
-        queue = db.lrange(constants.IMAGE_QUEUE, 0,
-                          constants.BATCH_SIZE - 1)
+        queue = db0.lrange(constants.IMAGE_QUEUE, 0,
+                           constants.BATCH_SIZE - 1)
         imageIDs = []
         batch = None
 
@@ -43,8 +47,8 @@ def classify_process():
 
             for (imageID, depthMap) in zip(imageIDs, results):
                 r = base64_encode_image(depthMap)
-                db.set(imageID, json.dumps(r))
-            db.ltrim(constants.IMAGE_QUEUE, len(imageIDs), -1)
+                db1.set(imageID, json.dumps(r))
+            db0.ltrim(constants.IMAGE_QUEUE, len(imageIDs), -1)
         time.sleep(constants.SERVER_SLEEP)
 
 
