@@ -5,11 +5,11 @@ import json
 
 # initialize the Keras REST API endpoint URL along with the input
 # image path
-KERAS_REST_API_URL = "http://127.0.0.1:5000/predict"
+KERAS_REST_API_URL = 'http://127.0.0.1:5000/predict'
 
 # prepare headers for http request
-content_type = "image/jpeg"
-headers = {"Content-Type": content_type}
+# content_type = "image/jpg"
+# headers = {"content-type": content_type}
 
 # define a video capture object
 vid = cv2.VideoCapture(0)
@@ -19,13 +19,14 @@ ret, frame = vid.read()
 _, img_encoded = cv2.imencode(".jpg", frame)
 payload = {"image": img_encoded}
 
+payload = {"image": img_encoded}
+
 # send http request with image and receive response
 response = requests.post(KERAS_REST_API_URL, files=payload)
-
+print(response.json())
 # decode response
 # print(json.load(response))
 # print(response.status_code)
-print(response.json())
 
 # while True:
 #     # Capture the video frame

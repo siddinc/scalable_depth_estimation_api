@@ -1,4 +1,4 @@
-from tensorflow.keras.applications import ResNet50
+# from tensorflow.keras.applications import ResNet50
 from tensorflow.keras.applications.resnet50 import decode_predictions
 import numpy as np
 import constants
@@ -6,6 +6,8 @@ import utils
 import redis
 import time
 import json
+from utils import load_model, base64_encode_image
+import matplotlib.pyplot as plt
 
 
 db = redis.StrictRedis(host=constants.REDIS_HOST,
@@ -14,7 +16,7 @@ db = redis.StrictRedis(host=constants.REDIS_HOST,
 
 def classify_process():
     print("* Loading model...")
-    model = ResNet50(weights="imagenet")
+    model = load_model("./model/model.json", "./model/weights.h5")
     print("* Model loaded")
 
     while True:
@@ -37,15 +39,11 @@ def classify_process():
         if len(imageIDs) > 0:
             print("* Batch size: {}".format(batch.shape))
             preds = model.predict(batch)
-            results = decode_predictions(preds)
+            results = np.squeeze(preds, axis=-1)
 
-            for (imageID, resultSet) in zip(imageIDs, results):
-                output = []
-
-                for (imagenetID, label, prob) in resultSet:
-                    r = {"label": label, "probability": float(prob)}
-                    output.append(r)
-                db.set(imageID, json.dumps(output))
+            for (imageID, depthMap) in zip(imageIDs, results):
+                r = base64_encode_image(depthMap)
+                db.set(imageID, json.dumps(r))
             db.ltrim(constants.IMAGE_QUEUE, len(imageIDs), -1)
         time.sleep(constants.SERVER_SLEEP)
 

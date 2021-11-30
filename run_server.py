@@ -9,11 +9,11 @@ import uuid
 import time
 import json
 import io
+from flask_cors import CORS
 
 
 app = flask.Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-app.config["CORS_HEADERS"] = "Content-Type"
+CORS(app)
 db = redis.StrictRedis(
     host=constants.REDIS_HOST, port=constants.REDIS_PORT, db=constants.REDIS_DB
 )
@@ -25,10 +25,8 @@ def homepage():
 
 
 @app.route("/predict", methods=["POST"])
-@cross_origin()
 def predict():
     data = {"success": False}
-    print(data)
     if flask.request.method == "POST":
         if flask.request.files.get("image"):
             image = flask.request.files["image"].read()
