@@ -11,12 +11,10 @@ from constants import (
     IMAGE_CHANS,
     SERVER_SLEEP,
     CLIENT_SLEEP,
+    MODEL_PTH,
+    WEIGHTS_PTH,
 )
-from utils import (
-    base64_decode_image,
-    base64_encode_image,
-    prepare_image
-)
+from utils import base64_decode_image, base64_encode_image, prepare_image, load_model
 
 import numpy as np
 import flask
@@ -44,8 +42,9 @@ def classify_process():
 
         for q in queue:
             q = json.loads(q.decode("utf-8"))
-            image = base64_decode_image(q["image"], IMAGE_DTYPE,
-                                        (1, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANS))
+            image = base64_decode_image(
+                q["image"], IMAGE_DTYPE, (1, IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_CHANS)
+            )
             if batch is None:
                 batch = image
             else:

@@ -1,5 +1,6 @@
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.applications.resnet50 import preprocess_input
+from tensorflow.keras.models import model_from_json
 import base64
 import sys
 import numpy as np
@@ -34,3 +35,11 @@ def prepare_image(image, target):
     image = preprocess_input(image)
     # return the processed image
     return image
+
+
+def load_model(model_pth: str, weights_path: str):
+    with open(model_pth, "r") as f:
+        m = f.read()
+        model = model_from_json(m)
+        model.load_weights(weights_path)
+    return model
